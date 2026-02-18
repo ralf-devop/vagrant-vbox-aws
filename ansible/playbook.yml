@@ -1,0 +1,40 @@
+---
+- name: provision vagrant box
+  hosts: all
+  gather_facts: no
+  become: yes
+
+  tasks:
+
+    - name: Set timezone
+      ansible.builtin.command: "timedatectl set-timezone Europe/Berlin"
+
+    - name: install packages
+      ansible.builtin.apt:
+        name:
+          - unzip
+          - vim
+          - jq
+        update_cache: yes
+
+    - name: Check if awscli is already installed
+      ansible.builtin.stat:
+        path: "/usr/local/bin/aws"
+      register: "aws_check"
+
+    - name: Download and extract awscli
+      ansible.builtin.unarchive:
+        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /var/tmp
+        remote_src: yes
+      when: "not aws_check.stat.exists"
+
+    - name: install aws-cli
+      ansible.builtin.command: "/var/tmp/aws/install"
+      when: "not aws_check.stat.exists"
+
+    - name: Add aws command completion
+      ansible.builtin.lineinfile:
+        path: /home/vagrant/.bashrc
+        regexp: '^complete -C /usr/local/bin/aws_completer aws'
+        line: 'complete -C /usr/local/bin/aws_completer aws'
