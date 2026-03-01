@@ -11,4 +11,16 @@ My vagrant vbox environment to manage Amazon Web Services.
 
 The configuration is defined as an ansible playbook.
 Changes in a running environment can be applied as follows:
-`ansible-playbook --connection=local --inventory 127.0.0.1, /vagrant/ansible/playbook.yml`
+```
+ansible-playbook --connection=local --inventory 127.0.0.1, /vagrant/ansible/playbook.yml
+```
+
+## Configuration
+### Environment variables
+The following host variables are passed on to the guest machine:
+
+* `AWS_DEFAULT_REGION`
+* `AWS_ACCESS_KEY_ID`
+* `AWS_SECRET_ACCESS_KEY`
+
+Changes to these variables are applied to the guest machine after the first up, an up after a halt, or an up/resume after a suspend.
