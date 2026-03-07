@@ -9,13 +9,27 @@
     - name: Set timezone
       ansible.builtin.command: "timedatectl set-timezone Europe/Berlin"
 
-    - name: install packages
+    - name: Install packages
       ansible.builtin.apt:
         name:
           - unzip
           - vim
           - jq
         update_cache: yes
+
+    - name: Remove other motds
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      with_fileglob: "/etc/update-motd.d/??-[!w]*"
+
+    - name: Set message of the day
+      ansible.builtin.copy:
+        src: ./motd
+        dest: /etc/update-motd.d/00-welcome
+        owner: root
+        group: root
+        mode: '0755'
 
     - name: Check if awscli is already installed
       ansible.builtin.stat:
@@ -29,7 +43,7 @@
         remote_src: yes
       when: "not aws_check.stat.exists"
 
-    - name: install aws-cli
+    - name: Install aws-cli
       ansible.builtin.command: "/var/tmp/aws/install"
       when: "not aws_check.stat.exists"
 
