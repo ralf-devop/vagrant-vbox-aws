@@ -15,6 +15,8 @@
           - unzip
           - vim
           - jq
+          - nodejs
+          - npm
         update_cache: yes
 
     - name: Remove other motds
@@ -52,3 +54,6 @@
         path: /home/vagrant/.bashrc
         regexp: '^complete -C /usr/local/bin/aws_completer aws'
         line: 'complete -C /usr/local/bin/aws_completer aws'
+
+    - name: Install aws cdk
+      ansible.builtin.command: "npm install -g aws-cdk"
