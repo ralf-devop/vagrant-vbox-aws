@@ -1,6 +1,8 @@
 ---
 - name: provision vagrant box
   hosts: all
+  vars:
+    node_version: "v24.14.1"
   gather_facts: no
   become: yes
 
@@ -15,8 +17,6 @@
           - unzip
           - vim
           - jq
-          - nodejs
-          - npm
         update_cache: yes
 
     - name: Remove other motds
@@ -55,5 +55,26 @@
         regexp: '^complete -C /usr/local/bin/aws_completer aws'
         line: 'complete -C /usr/local/bin/aws_completer aws'
 
-    - name: Install aws cdk
-      ansible.builtin.command: "npm install -g aws-cdk"
+    - name: Ensure NVM Installation script ist executable
+      ansible.builtin.file:
+        path: "./nvm_install.sh"
+        mode: '774'
+
+    - name: Install Node Version Manager
+      ansible.builtin.command: "./nvm_install.sh | bash && source ~/.bashrc"
+
+    - name: Install Node, NPM and AWS CDK
+      ansible.builtin.shell: |
+                    . /root/.nvm/nvm.sh
+                    nvm install "{{ node_version }}"
+                    npm install -g aws-cdk
+
+    - name: Modify profile
+      ansible.builtin.blockinfile:
+        path: /home/vagrant/.profile
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        block: |
+          # set PATH so it includes node
+          if [ -d "/usr/bin/versions/node/{{ node_version }}/bin" ] ; then
+              PATH="$PATH:/usr/bin/versions/node/{{ node_version }}/bin"
+          fi
