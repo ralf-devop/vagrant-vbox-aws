@@ -13,7 +13,9 @@ Vagrant.configure("2") do |config|
   config.vm.box_version = "202510.26.0"
   config.vm.hostname = "aws-vm"
 
-  #config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder "./ansible", "/vagrant/ansible"
+  config.vm.synced_folder "./projects", "/home/vagrant/projects"
 
   config.vm.provision "shell", inline: $set_environment_variables, run: "always"
 

@@ -1,1 +1,4 @@
 .vagrant
+
+# virtualenv
+.venv/
