@@ -2,6 +2,7 @@ $set_environment_variables = <<SCRIPT
 tee "/etc/profile.d/awsvars.sh" > "/dev/null" <<EOF
 # AWS environment variables
 export AWS_DEFAULT_REGION=#{ENV['AWS_DEFAULT_REGION']}
+export AWS_DEFAULT_OUTPUT=#{ENV['AWS_DEFAULT_OUTPUT']}
 export AWS_ACCESS_KEY_ID=#{ENV['AWS_ACCESS_KEY_ID']}
 export AWS_SECRET_ACCESS_KEY=#{ENV['AWS_SECRET_ACCESS_KEY']}
 EOF
@@ -16,6 +17,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.synced_folder "./ansible", "/vagrant/ansible"
   config.vm.synced_folder "./projects", "/home/vagrant/projects"
+  config.vm.synced_folder "./keys", "/home/vagrant/.ssh/aws", mount_options: ["dmode=700,fmode=600"]
 
   config.vm.provision "shell", inline: $set_environment_variables, run: "always"
 
