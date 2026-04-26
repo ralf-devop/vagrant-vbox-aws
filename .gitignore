@@ -1,4 +1,8 @@
+# virtual machine stuff
 .vagrant
 
 # virtualenv
 .venv/
+
+# common
+*.log
