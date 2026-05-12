@@ -1,5 +1,7 @@
 # Who-Needs-A-Server-Anyway
 
+Python project demonstrating a serverless REST service using AWS Lambda
+
 ## Requirements
 
 1. Your AWS environment was bootstrapped once by an IAM Account with AdministratorAccess policy. If you haven't done so already, run the following command:
