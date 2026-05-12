@@ -1,65 +1,73 @@
+# Who-Needs-A-Server-Anyway
 
-# Welcome to your CDK Python project!
+## Requirements
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`who_needs_a_server_anyway_stack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization process also creates
-a virtualenv within this project, stored under the .venv directory.  To create the virtualenv
-it assumes that there is a `python3` executable in your path with access to the `venv` package.
-If for any reason the automatic creation of the virtualenv fails, you can create the virtualenv
-manually once the init process completes.
-
-To manually create a virtualenv on MacOS and Linux:
+1. Your AWS environment was bootstrapped once by an IAM Account with AdministratorAccess policy. If you haven't done so already, run the following command:
 
 ```
-$ python3 -m venv .venv
+cdk bootstrap
 ```
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+2. Use an IAM account with the necessary permissions. If you do not want to run this project as an administrator, create a new inline policy (e.g. "NonAdminCDKDeploy") as a JSON file with the following content, and assign it to the Lambda developer:
 
 ```
-$ source .venv/bin/activate
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:role/cdk-*"
+            ]
+        }
+    ]
+}
 ```
 
-If you are a Windows platform, you would activate the virtualenv like this:
+## Installation
 
 ```
-% .venv\Scripts\activate.bat
+cd ~/projects/who-needs-a-server-anyway
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
 ```
 
-Once the virtualenv is activated, you can install the required dependencies.
+## Usage
 
+**List all AWS CDK stacks**
 ```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
+cdk list
 ```
 
-You can now begin exploring the source code, contained in the hello directory.
-There is also a very trivial test included that can be run like this:
-
+**Synthesize the CDK app to produce a cloud assembly**
 ```
-$ pytest
+cdk synth
 ```
 
-To add additional dependencies, for example other CDK libraries, just add to
-your requirements.txt file and rerun the `pip install -r requirements.txt`
-command.
+**Deploy the AWS CDK stack into your AWS environment**
+```
+cdk deploy
+```
 
-## Useful commands
+**List the deployed lambda functions**
+```
+aws lambda list-functions
+aws lambda list-functions --query 'Functions[].FunctionName' --output text
+```
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+**Try the function URL with curl**
+```
+# Pattern:
+# curl https://<api-id>.execute-api.<region>.amazonaws.com/prod/hello
+curl -X GET https://0wcq5gvyqz.execute-api.eu-central-1.amazonaws.com/prod/hello
+curl -X GET https://p4mccn5ujk.execute-api.eu-central-1.amazonaws.com/prod/people
+```
 
-Enjoy!
+**Delete the AWS CDK stacks from your AWS environment.**
+```
+cdk destroy
+```
