@@ -52,7 +52,9 @@ aws ec2 describe-key-pairs --output text --query 'KeyPairs[*].KeyName'
 aws ec2 describe-instances
 ```
 **Run new instance**  
-Select an AMI from the catalog that is available for your AWS region, and choose the instance type.
+Select an AMI from the catalog that is available for your AWS region, and choose the instance type.  
+`ami-0de6934e87badb694`: Amazon Linux 2023 kernel-6.1 AMI  
+`t2.micro`: 1 vCPU, 1 Kern, Architektur x86_64, 1GB RAM
 ```
 aws ec2 run-instances --image-id ami-0de6934e87badb694 --instance-type t2.micro --key-name myawskey
 ```
