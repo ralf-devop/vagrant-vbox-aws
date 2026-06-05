@@ -1,3 +1,9 @@
 #!/bin/sh
 DIST_DESC=$(cat /etc/os-release | egrep "PRETTY_NAME" | cut -d = -f 2 | tr -d '"')
 echo "Welcome to your AWS environment ($DIST_DESC)"
+
+userid=$(id -u)
+
+if [ $userid = 0 ] ; then
+    sudo -H -i -u vagrant bash -c /usr/local/bin/check_aws_vars.sh
+fi
