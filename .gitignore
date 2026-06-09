@@ -8,5 +8,11 @@
 __pycache__/
 .pytest_cache
 
+# terraform
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+
 # common
 *.log
