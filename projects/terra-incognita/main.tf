@@ -29,6 +29,7 @@ resource "aws_instance" "training-env" {
 
   user_data = templatefile("${path.module}/user_data.sh.tpl", {
     key = aws_key_pair.training_key_pair.public_key
+    key_name = "${aws_key_pair.training_key_pair.key_name}"
     user = "trainee_${count.index}"
   })
 
@@ -38,6 +39,12 @@ resource "aws_instance" "training-env" {
 }
 
 # Output variable: Public IP address
-output "public_ip" {
-  value = "${aws_instance.training-env[*].public_ip}"
+output "trainee_public_ip" {
+   value = {
+    for k, v in aws_instance.training-env : k => {
+      ip = v.public_ip
+      user = "trainee_${k}"
+      connection_string = "ssh -i ${aws_key_pair.training_key_pair.key_name} trainee_${k}@${v.public_ip}"
+    }
+  }
 }
