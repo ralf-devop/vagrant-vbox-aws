@@ -27,10 +27,10 @@ resource "aws_instance" "training-env" {
   key_name = aws_key_pair.training_key_pair.key_name
   count = "${var.number_trainees}"
 
-  user_data = <<-EOF
-        #!/bin/bash
-        sudo useradd trainee_${count.index}
-    EOF
+  user_data = templatefile("${path.module}/user_data.sh.tpl", {
+    key = aws_key_pair.training_key_pair.public_key
+    user = "trainee_${count.index}"
+  })
 
   tags = {
     Name = "training-machines"
