@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Install required packages for training machine
+%{ for pkg in packages }
+dnf install -y ${pkg}
+%{ endfor }
+
 # Add SSH keys for authorized user
 useradd -m ${user}
 mkdir -p /home/${user}/.ssh
