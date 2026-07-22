@@ -27,7 +27,7 @@ terraform apply
 #with your own values for variables 
 terraform apply -var 'number_trainees=5'
 ```
-Trainer and trainees Keys for SSH connection are created in the project folder
+Trainer and trainees keys for SSH connection are created in the project folder
 
 **Connect as trainer to the created EC2 instance**
 ```
