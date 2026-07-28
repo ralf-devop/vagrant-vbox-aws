@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Template to deploy WordPress on an EC2 instance with an RDS database
+
+Parameters:
+  AdminPassParameter:
+    NoEcho: true
+    Description: MySQL administrator password
+    Type: String
+    MinLength: 1
+    MaxLength: 32
+    AllowedPattern: ^[a-zA-Z0-9]*$
+
+Resources:
+
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH and HTTP access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+
+  MySQLDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: '20'
+      DBInstanceClass: db.t3.micro
+      Engine: mysql
+      EngineVersion: '8.0'
+      MasterUsername: 'wordpress_admin'
+      MasterUserPassword:
+        Ref: AdminPassParameter
+      PubliclyAccessible: true
+      DBInstanceIdentifier: 'mysql4wordpress'
+
+  WebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref WebServerSecurityGroup
+      KeyName: myawskey
+      ImageId: ami-0de6934e87badb694
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd php php-mysqli
+          systemctl enable httpd
+          systemctl start httpd
+          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
+          cd /var/www/html
+          wget https://wordpress.org/latest.tar.gz
+          tar -xzf latest.tar.gz
+          cp -R wordpress/* /var/www/html/
+          rm -rf wordpress latest.tar.gz
+          chown -R apache:apache /var/www/html
+          chmod -R 755 /var/www/html
+          systemctl restart httpd
