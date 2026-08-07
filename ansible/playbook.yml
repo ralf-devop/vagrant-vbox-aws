@@ -3,6 +3,8 @@
   hosts: all
   vars:
     node_version: "v24.14.1"
+    kubectl_version: "v1.36.0"
+    eksctl_version: "v0.229.0"
   gather_facts: no
   become: yes
 
@@ -33,6 +35,7 @@
           - python3-pip
           - python3-venv
           - terraform
+          - bash-completion
         update_cache: yes
 
     - name: Remove other motds
@@ -92,6 +95,49 @@
                     . /root/.nvm/nvm.sh
                     nvm install "{{ node_version }}"
                     npm install -g aws-cdk
+
+    - name: Check if kubectl is already installed
+      ansible.builtin.stat:
+        path: "/usr/local/bin/kubectl"
+      register: "kubectl_check"
+
+    - name: Download kubectl
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
+        dest: /var/tmp
+      when: "not kubectl_check.stat.exists"
+
+    - name: Install kubectl
+      ansible.builtin.command: "install -o root -g root -m 0755 /var/tmp/kubectl /usr/local/bin/"
+      when: "not kubectl_check.stat.exists"
+
+    - name: Add kubectl command completion
+      ansible.builtin.lineinfile:
+        path: /home/vagrant/.bashrc
+        regexp: '^source <(kubectl completion bash)'
+        line: 'source <(kubectl completion bash)'
+
+    - name: Check if eksctl is already installed
+      ansible.builtin.stat:
+        path: "/usr/local/bin/eksctl"
+      register: "eksctl_check"
+
+    - name: Download and extract eksctl
+      ansible.builtin.unarchive:
+        src: "https://github.com/eksctl-io/eksctl/releases/download/{{ eksctl_version }}/eksctl_Linux_amd64.tar.gz"
+        dest: /var/tmp
+        remote_src: yes
+      when: "not eksctl_check.stat.exists"
+
+    - name: Install eksctl
+      ansible.builtin.command: "install -o root -g root -m 0755 /var/tmp/eksctl /usr/local/bin/"
+      when: "not eksctl_check.stat.exists"
+
+    - name: Add eksctl command completion
+      ansible.builtin.lineinfile:
+        path: /home/vagrant/.bashrc
+        regexp: '^source <(eksctl completion bash)'
+        line: 'source <(eksctl completion bash)'
 
     - name: Modify profile
       ansible.builtin.blockinfile:
