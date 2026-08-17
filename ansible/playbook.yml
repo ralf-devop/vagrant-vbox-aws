@@ -13,17 +13,16 @@
     - name: Set timezone
       ansible.builtin.command: "timedatectl set-timezone Europe/Berlin"
 
-    - name: Add Hashicorp apt key
-      ansible.builtin.get_url:
-        url: https://apt.releases.hashicorp.com/gpg
-        dest: /etc/apt/keyrings/hashicorp.asc
-        mode: '0644'
-
     - name: Add Hashicorp apt repo
-      ansible.builtin.apt_repository:
-        repo: deb [signed-by=/etc/apt/keyrings/hashicorp.asc] https://apt.releases.hashicorp.com noble main
-        state: present
-        filename: hashicorp
+      ansible.builtin.deb822_repository:
+        name: hashicorp
+        types: deb
+        uris: https://apt.releases.hashicorp.com
+        suites: noble
+        components: main
+        architectures: amd64
+        signed_by: https://apt.releases.hashicorp.com/gpg
+        install_python_debian: true
 
     - name: Install packages
       ansible.builtin.apt:
